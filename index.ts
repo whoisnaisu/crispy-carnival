@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import readline from "readline";
 
-let directoryPath = "./images/";
+let directoryPath = "./images/10151/";
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -14,7 +14,7 @@ if (!fs.existsSync(directoryPath)) {
   fs.mkdirSync(directoryPath);
 }
 
-rl.question("Enter the book ID: ", (dirId) => {
+rl.question("Enter the book directory ID: ", (dirId) => {
   if (dirId.length > 5) {
     console.log(
       "Invalid directory ID. It should not have more than five characters."
@@ -23,46 +23,40 @@ rl.question("Enter the book ID: ", (dirId) => {
     return;
   }
 
-  directoryPath += dirId;
+  rl.question("Enter the directory you want to create: ", (dirName) => {
+    dirName = dirName.replace(/[^a-zA-Z0-9]/g, "");
 
-  rl.question("Enter the number of pages to download: ", (input) => {
-    const numPages = parseInt(input);
-
-    if (isNaN(numPages) || numPages <= 0) {
-      console.log("Invalid input. Please enter a positive integer.");
-      rl.close();
-      return;
-    }
+    directoryPath += dirName;
 
     if (!fs.existsSync(directoryPath)) {
       fs.mkdirSync(directoryPath);
     }
+    let i = 1;
+    let fetch = true;
 
-    for (let i = 1; i <= numPages; i++) {
-      axios
-        .get(
+    const fetchPage = async () => {
+      try {
+        if (!fetch) {
+          rl.close();
+          return;
+        }
+        const response = await axios.get(
           `http://readonline.ebookstou.org/flipbook/${dirId}/files/mobile/${i}.jpg`,
           { responseType: "arraybuffer" }
-        )
-        .then((response) => {
-          if (response.status === 200) {
-            const filePath = path.join(directoryPath, `${i}.jpg`);
-            fs.writeFileSync(filePath, response.data, "binary");
-            console.log(`Downloaded ${filePath}`);
-          } else {
-            console.log(
-              `Failed to download page ${i}. Status code: ${response.status}`
-            );
-          }
-        })
-        .catch((error) => {
-          console.log(
-            `Error downloading page ${i}: ${error.message} \n`,
-            error
-          );
-        });
-    }
+        );
 
-    rl.close();
+        if (response.status === 200) {
+          const filePath = path.join(directoryPath, `${i}.jpg`);
+          fs.writeFileSync(filePath, response.data, "binary");
+          console.log(`Downloaded ${filePath}`);
+          i++;
+          fetchPage();
+        }
+      } catch (error) {
+        fetch = false;
+        rl.close();
+      }
+    };
+    fetchPage();
   });
 });
