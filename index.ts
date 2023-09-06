@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import readline from "readline";
 
-let directoryPath = "./images/10151/";
+let directoryPath = "./images/";
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -23,7 +23,7 @@ rl.question("Enter the book directory ID: ", (dirId) => {
     return;
   }
 
-  rl.question("Enter the directory you want to create: ", (dirName) => {
+  rl.question("Enter the directory name you want to create: ", (dirName) => {
     dirName = dirName.replace(/[^a-zA-Z0-9]/g, "");
 
     directoryPath += dirName;
