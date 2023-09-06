@@ -3,16 +3,10 @@ import fs from "fs";
 import path from "path";
 import readline from "readline";
 
-let directoryPath: string = "./images/";
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
-
-if (!fs.existsSync(directoryPath)) {
-  fs.mkdirSync(directoryPath);
-}
 
 function promptToContinue(): void {
   rl.question(
@@ -40,8 +34,8 @@ function startDownload(): void {
     rl.question(
       "Enter the directory name you want to create: ",
       (dirName: string) => {
+        let directoryPath: string = "./images/";
         dirName = dirName.replace(/[^a-zA-Z0-9]/g, "");
-
         directoryPath += dirName;
 
         if (!fs.existsSync(directoryPath)) {
